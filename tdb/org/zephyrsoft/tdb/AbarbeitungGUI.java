@@ -148,9 +148,13 @@ public class AbarbeitungGUI extends JFrame implements TableModelListener {
         
         table.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent me) {
-                if (me.getButton()!=MouseEvent.BUTTON1 && table.getSelectedRow() != -1 && !table.isEditing()) {
+                if (me.getButton()!=MouseEvent.BUTTON1 && !table.isEditing()) {
                     int x = me.getX();
                     int y = me.getY();
+                    // Zeile an (x/y) finden und markieren
+                    int proZeile = table.getRowHeight();
+                    int zeile = (int)Math.floor(y/proZeile);
+                    table.getSelectionModel().setSelectionInterval(zeile, zeile);
                     Point left_top = scrollpane.getViewport().getViewPosition();
                     Dimension extents = scrollpane.getViewport().getExtentSize();
                     if (x + popup.getWidth() - left_top.getX() > extents.getWidth()) {
@@ -160,7 +164,6 @@ public class AbarbeitungGUI extends JFrame implements TableModelListener {
                         y -= popup.getHeight();
                     }
                     popup.show(me.getComponent(), x, y);
-                    //System.out.println("X:" + x + " Y:" + y + " TH:" + table.getHeight() + " TW:" + table.getWidth() + " PH:" + popup.getHeight() + " PW:" + popup.getWidth());
                 }
             }
             public void mousePressed(MouseEvent me) {
@@ -214,8 +217,8 @@ public class AbarbeitungGUI extends JFrame implements TableModelListener {
     
     protected void ready() {
         if (table.getSelectedRow() != -1 && String.valueOf(model.getValueAt(table.getSelectedRow(), 4)).equalsIgnoreCase("unfertig")) {
-            int really = JOptionPane.showConfirmDialog(AbarbeitungGUI.this, "Wirklich diesen Auftrag als erledigt markieren?", "Sicherheitsabfrage", JOptionPane.OK_CANCEL_OPTION);
-            if (really == JOptionPane.OK_OPTION) {
+            //int really = JOptionPane.showConfirmDialog(AbarbeitungGUI.this, "Wirklich diesen Auftrag als erledigt markieren?", "Sicherheitsabfrage", JOptionPane.OK_CANCEL_OPTION);
+            //if (really == JOptionPane.OK_OPTION) {
                 int selrow = getSelectedRow();
                 if (Integer.valueOf(String.valueOf(model.getValueAt(selrow, 6))).intValue()==-3) {
                     DB.getInstance().setAboAuftragErledigt(String.valueOf(model.getValueAt(selrow, 1)), String.valueOf(model.getValueAt(selrow, 5)), String.valueOf(model.getValueAt(selrow, 2)), String.valueOf(model.getValueAt(selrow, 3)));
@@ -224,7 +227,7 @@ public class AbarbeitungGUI extends JFrame implements TableModelListener {
                 }
                 reloadData();
                 setSelectedRow(selrow);
-            }
+            //}
         }
     }
     

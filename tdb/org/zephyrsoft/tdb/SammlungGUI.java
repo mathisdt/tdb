@@ -87,6 +87,12 @@ public class SammlungGUI extends JFrame implements TableModelListener {
         column.setMinWidth(0);
         column.setPreferredWidth(0);
         column.setWidth(0);
+        column = table.getColumnModel().getColumn(table.getColumnModel().getColumnIndex("Veranstaltung"));
+        column.setResizable(false);
+        column.setMaxWidth(0);
+        column.setMinWidth(0);
+        column.setPreferredWidth(0);
+        column.setWidth(0);
         
         final JTextField textfield = new JTextField();
         textfield.setBackground(Color.GREEN);
@@ -128,9 +134,13 @@ public class SammlungGUI extends JFrame implements TableModelListener {
         
         table.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent me) {
-                if (me.getButton()!=MouseEvent.BUTTON1 && table.getSelectedRow() != -1 && table.getSelectedRow() != table.getRowCount()-1 && !table.isEditing()) {
+            	if (me.getButton()!=MouseEvent.BUTTON1 && !table.isEditing()) {
                     int x = me.getX();
                     int y = me.getY();
+                    // Zeile an (x/y) finden und markieren
+                    int proZeile = table.getRowHeight();
+                    int zeile = (int)Math.floor(y/proZeile);
+                    table.getSelectionModel().setSelectionInterval(zeile, zeile);
                     Point left_top = scrollpane.getViewport().getViewPosition();
                     Dimension extents = scrollpane.getViewport().getExtentSize();
                     if (x + popup.getWidth() - left_top.getX() > extents.getWidth()) {
@@ -139,8 +149,9 @@ public class SammlungGUI extends JFrame implements TableModelListener {
                     if (y + popup.getHeight() - left_top.getY() > extents.getHeight()) {
                         y -= popup.getHeight();
                     }
-                    popup.show(me.getComponent(), x, y);
-                    //System.out.println("X:" + x + " Y:" + y + " TH:" + table.getHeight() + " TW:" + table.getWidth() + " PH:" + popup.getHeight() + " PW:" + popup.getWidth());
+                    if (zeile != table.getRowCount()-1) {
+            				popup.show(me.getComponent(), x, y);
+                    }
                 }
             }
             public void mousePressed(MouseEvent me) {
