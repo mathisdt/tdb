@@ -13,7 +13,11 @@ import javax.swing.*;
  *
  */
 public class DB {
-    private static final DB _instance = new DB();
+
+	// falls nötig, die Datenbank um hinzugekommene Spalten erweitern:
+    // - "ALTER TABLE `abo` ADD `medium` VARCHAR( 25 ) NOT NULL DEFAULT 'Kassette';"
+    
+	private static final DB _instance = new DB();
     private ResourceBundle RESOURCE_BUNDLE = null;
     private Connection conn = null;
     
@@ -43,16 +47,16 @@ public class DB {
     }
     
     public ResultSet getAbos() {
-        return select("select erstellung,besteller,klasse,ist_aktiv,bemerkung,id from abo order by besteller,klasse DESC");
+        return select("select erstellung,besteller,klasse,ist_aktiv,bemerkung,id,medium from abo order by besteller,klasse DESC");
     }
     public ResultSet getAktiveAbos() {
-        return select("select erstellung,besteller,klasse,ist_aktiv,bemerkung,id from abo where ist_aktiv=1 order by besteller,klasse");
+        return select("select erstellung,besteller,klasse,ist_aktiv,bemerkung,id,medium from abo where ist_aktiv=1 order by besteller,klasse");
     }
-    public int insertAbo(String besteller, String klasse, String bemerkung) {
-        return insert_update_delete("insert into abo (erstellung, besteller, klasse, ist_aktiv, bemerkung) values (now(), '" + besteller + "', '" + klasse + "', 1, '" + bemerkung + "')");
+    public int insertAbo(String besteller, String klasse, String bemerkung, String medium) {
+        return insert_update_delete("insert into abo (erstellung, besteller, klasse, ist_aktiv, bemerkung, medium) values (now(), '" + besteller + "', '" + klasse + "', 1, '" + bemerkung + "', '" + medium + "')");
     }
-    public int updateAbo(int id, String besteller, String klasse, boolean ist_aktiv, String bemerkung) {
-        return insert_update_delete("update abo set besteller='" + besteller + "', klasse='" + klasse + "', ist_aktiv=" + (ist_aktiv ? "1" : "0") + ", bemerkung='" + bemerkung + "' where id=" + id);
+    public int updateAbo(int id, String besteller, String klasse, boolean ist_aktiv, String bemerkung, String medium) {
+        return insert_update_delete("update abo set besteller='" + besteller + "', klasse='" + klasse + "', ist_aktiv=" + (ist_aktiv ? "1" : "0") + ", bemerkung='" + bemerkung + "', medium='" + medium + "' where id=" + id);
     }
     public int deleteAbo(int id) {
         return insert_update_delete("delete from abo where id=" + id);
@@ -99,7 +103,7 @@ public class DB {
     public ResultSet getAuftraege() {
         return select("(select erstellung,besteller,medium,was,fertigstellung,bemerkung,id from auftrag) " +
                 "UNION " +
-                "(select NOW(),abo.besteller,'Kassette',CONCAT('P',predigt.id),null,'ABO-AUFTRAG',-3 " +
+                "(select NOW(),abo.besteller,medium,CONCAT('P',predigt.id),null,'ABO-AUFTRAG',-3 " +
                     "from abo,predigt where " +
                         "abo.klasse=predigt.klasse AND " +
                         "abo.ist_aktiv=true AND " +
@@ -182,6 +186,7 @@ public class DB {
             sqlex.printStackTrace();
             JOptionPane.showMessageDialog(null, "Die Verbindung zur Datenbank auf " + RESOURCE_BUNDLE.getString("server") + " konnte nicht\nhergestellt werden. Bitte überprüfen Sie die Zugangsdaten!","Fehler", JOptionPane.ERROR_MESSAGE);
         }
+        
     }
 
     public static DB getInstance() {

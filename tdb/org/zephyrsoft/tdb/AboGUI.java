@@ -37,6 +37,7 @@ public class AboGUI extends JFrame implements TableModelListener {
         headers.addElement("Abo aktiv");
         headers.addElement("Bemerkung");
         headers.addElement("ID");
+        headers.addElement("Medium");
         
         data = new Vector();
         ResultSet rs = DB.getInstance().getAbos();
@@ -44,7 +45,7 @@ public class AboGUI extends JFrame implements TableModelListener {
             ResultSetMetaData rsmd = rs.getMetaData();
             int cols = rsmd.getColumnCount();
             while (rs.next()) {
-                Vector objects = new Vector();
+            	Vector objects = new Vector();
                 for (int i = 0; i < cols; i++) {
                     Object now = rs.getObject(i + 1);
                     try {
@@ -63,14 +64,17 @@ public class AboGUI extends JFrame implements TableModelListener {
             }
             Vector objects = new Vector();
             objects.addElement("jetzt");
-            for (int i = 0; i < cols-2; i++) {
+            for (int i = 0; i < cols-1; i++) {
                 if (i==2) {
                     objects.addElement(new Boolean(true));
+                } else if (i==4) {
+                	objects.addElement("neu");
+                } else if (i==5) {
+                	objects.addElement("Kassette");
                 } else {
-                    objects.addElement("");
+                	objects.addElement("");
                 }
             }
-            objects.addElement("neu");
             data.addElement(objects);
         } catch(SQLException sqlex) {
             sqlex.printStackTrace();
@@ -79,7 +83,7 @@ public class AboGUI extends JFrame implements TableModelListener {
         
         model = new DefaultTableModel(data, headers) {
             public boolean isCellEditable(int row, int col) {
-                if (col==0 || (col==3 && row==getRowCount()-1) || col==getColumnCount()-1) {
+                if (col==0 || (col==3 && row==getRowCount()-1) || col==5) {
                     return false;
                 } else {
                     return true;
@@ -100,7 +104,7 @@ public class AboGUI extends JFrame implements TableModelListener {
         column.setMinWidth(0);
         column.setPreferredWidth(0);
         column.setWidth(0);
-        
+                
         final JTextField textfield = new JTextField();
         textfield.setBackground(Color.GREEN);
         
@@ -117,7 +121,7 @@ public class AboGUI extends JFrame implements TableModelListener {
                 int copyreally = JOptionPane.showConfirmDialog(AboGUI.this, "Wirklich dieses Abo duplizieren?", "Sicherheitsabfrage", JOptionPane.OK_CANCEL_OPTION);
                 if (copyreally == JOptionPane.OK_OPTION) {
                     int selrow = getSelectedRow();
-                    DB.getInstance().insertAbo(String.valueOf(model.getValueAt(selrow, 1)), String.valueOf(model.getValueAt(selrow, 2)), String.valueOf(model.getValueAt(selrow, 4)));
+                    DB.getInstance().insertAbo(String.valueOf(model.getValueAt(selrow, 1)), String.valueOf(model.getValueAt(selrow, 2)), String.valueOf(model.getValueAt(selrow, 4)), String.valueOf(model.getValueAt(selrow, 6)));
                     reloadData();
                     setSelectedID(-2);
                 }
@@ -187,6 +191,10 @@ public class AboGUI extends JFrame implements TableModelListener {
             }
         });
         
+        String[] items = { "Kassette", "Audio-CD", "MP3-CD" };
+        JComboBox combobox = new JComboBox(items);
+        table.getColumn("Medium").setCellEditor(new DefaultCellEditor(combobox));
+
         content.add(scrollpane, BorderLayout.CENTER);
         
         setContentPane(content);
@@ -237,14 +245,17 @@ public class AboGUI extends JFrame implements TableModelListener {
             }
             Vector objects = new Vector();
             objects.addElement("jetzt");
-            for (int i = 0; i < cols-2; i++) {
+            for (int i = 0; i < cols-1; i++) {
                 if (i==2) {
                     objects.addElement(new Boolean(true));
+                } else if (i==4) {
+                	objects.addElement("neu");
+                } else if (i==5) {
+                	objects.addElement("Kassette");
                 } else {
-                    objects.addElement("");
+                	objects.addElement("");
                 }
             }
-            objects.addElement("neu");
             data.addElement(objects);
         } catch(SQLException sqlex) {
             sqlex.printStackTrace();
@@ -253,7 +264,7 @@ public class AboGUI extends JFrame implements TableModelListener {
         
         model = new DefaultTableModel(data, headers) {
             public boolean isCellEditable(int row, int col) {
-                if (col==0 || (col==3 && row==getRowCount()-1) || col==getColumnCount()-1) {
+                if (col==0 || (col==3 && row==getRowCount()-1) || col==5) {
                     return false;
                 } else {
                     return true;
@@ -287,6 +298,10 @@ public class AboGUI extends JFrame implements TableModelListener {
                 }
             }
         });
+        
+        String[] items = { "Kassette", "Audio-CD", "MP3-CD" };
+        JComboBox combobox = new JComboBox(items);
+        table.getColumn("Medium").setCellEditor(new DefaultCellEditor(combobox));
 
         // Breiten wieder setzen
         for (int i = 0; i < table.getColumnModel().getColumnCount(); i++) {
@@ -298,21 +313,23 @@ public class AboGUI extends JFrame implements TableModelListener {
         int row = tme.getFirstRow();
         int column = tme.getColumn();
         String columnName = model.getColumnName(column);
-        String id = String.valueOf(model.getValueAt(row, model.getColumnCount()-1));
+        String id = String.valueOf(model.getValueAt(row, 5));
         
         String besteller = String.valueOf(model.getValueAt(row, 1));
         String klasse = String.valueOf(model.getValueAt(row, 2));
         Boolean ist_aktiv = (Boolean)model.getValueAt(row, 3);
         String bemerkung = String.valueOf(model.getValueAt(row, 4));
+        String medium = String.valueOf(model.getValueAt(row, 6));
+        
         
         if (id.equalsIgnoreCase("neu")) {
             // Einfügen
-            DB.getInstance().insertAbo(besteller, klasse, bemerkung);
+            DB.getInstance().insertAbo(besteller, klasse, bemerkung, medium);
             reloadData();
             setSelectedID(-2);
         } else {
             // Aktualisieren
-            DB.getInstance().updateAbo(Integer.valueOf(id).intValue(), besteller, klasse, ist_aktiv.booleanValue(), bemerkung);
+            DB.getInstance().updateAbo(Integer.valueOf(id).intValue(), besteller, klasse, ist_aktiv.booleanValue(), bemerkung, medium);
             int selrow = getSelectedRow();
             reloadData();
             setSelectedRow(selrow);
