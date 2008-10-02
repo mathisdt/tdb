@@ -61,6 +61,8 @@ public class PredigtGUI extends JFrame implements TableModelListener {
         } catch(SQLException sqlex) {
             sqlex.printStackTrace();
             JOptionPane.showMessageDialog(null, "Ein Fehler trat beim Einlesen der Predigten auf.", "Fehler", JOptionPane.ERROR_MESSAGE);
+        } finally {
+        	DB.closeResultSet(rs);
         }
         
         model = new DefaultTableModel(data, headers) {
@@ -219,6 +221,8 @@ public class PredigtGUI extends JFrame implements TableModelListener {
         } catch(SQLException sqlex) {
             sqlex.printStackTrace();
             JOptionPane.showMessageDialog(null, "Ein Fehler trat beim Einlesen der Predigten auf.", "Fehler", JOptionPane.ERROR_MESSAGE);
+        } finally {
+        	DB.closeResultSet(rs);
         }
         
         model = new DefaultTableModel(data, headers) {

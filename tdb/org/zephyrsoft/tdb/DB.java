@@ -1,7 +1,9 @@
 package org.zephyrsoft.tdb;
 
 import java.sql.*;
+import java.text.*;
 import java.util.*;
+import java.util.Date;
 
 import javax.swing.*;
 
@@ -200,5 +202,14 @@ public class DB {
             sqlex.printStackTrace();
             JOptionPane.showMessageDialog(null, "Die Verbindung zur Datenbank auf " + RESOURCE_BUNDLE.getString("server") + " konnte nicht geschlossen werden.","Fehler", JOptionPane.ERROR_MESSAGE);
         }
+    }
+    
+    public static void closeResultSet(ResultSet rs) {
+    	try {
+    		rs.getStatement().close();
+    		rs.close();
+		} catch (SQLException e) {
+			System.err.println(SimpleDateFormat.getDateTimeInstance(SimpleDateFormat.SHORT, SimpleDateFormat.MEDIUM).format(new Date()) + ": Could not close result set properly!");
+		}
     }
 }
