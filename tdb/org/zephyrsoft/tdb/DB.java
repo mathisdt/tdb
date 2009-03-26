@@ -22,7 +22,7 @@ import sun.reflect.ReflectionFactory.*;
 public class DB {
 
 	// falls nötig, die Datenbank um hinzugekommene Spalten erweitern:
-    // - "ALTER TABLE `abo` ADD `medium` VARCHAR( 25 ) NOT NULL DEFAULT 'Kassette';"
+    // - "ALTER TABLE `abo` ADD `medium` VARCHAR( 25 ) NOT NULL DEFAULT 'Audio-CD';"
 	// falls nötig, DB-Spalten ändern:
 	// - ALTER TABLE `predigt` CHANGE `sprecher` `sprecher` TEXT CHARACTER SET latin1 COLLATE latin1_german2_ci NOT NULL, CHANGE `name` `name` TEXT CHARACTER SET latin1 COLLATE latin1_german2_ci NULL DEFAULT NULL 
     
