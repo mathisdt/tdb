@@ -10,6 +10,8 @@ import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.table.*;
 
+import org.zephyrsoft.util.*;
+
 public class PredigtGUI extends JFrame implements TableModelListener {
 
     private JTable table = null;
@@ -25,6 +27,8 @@ public class PredigtGUI extends JFrame implements TableModelListener {
     public PredigtGUI(boolean maximize) {
         super("Predigten");
         
+        
+        
         JPanel content = new JPanel(new BorderLayout());
         content.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
         
@@ -38,39 +42,23 @@ public class PredigtGUI extends JFrame implements TableModelListener {
         headers.addElement("Bemerkung");
         headers.addElement("ID");
         
-        data = new Vector();
-        ResultSet rs = DB.getInstance().getPredigten();
-        try {
-            ResultSetMetaData rsmd = rs.getMetaData();
-            int cols = rsmd.getColumnCount();
-            while (rs.next()) {
-                Vector objects = new Vector();
-                for (int i = 0; i < cols; i++) {
-                    Object now = rs.getObject(i + 1);
-                    objects.addElement(now);
-                }
-                data.addElement(objects);
-            }
-            Vector objects = new Vector();
-            objects.addElement(new Date((new java.util.Date()).getTime()));
-            for (int i = 1; i < cols-1; i++) {
-                objects.addElement("");
-            }
-            objects.addElement("neu");
-            data.addElement(objects);
-        } catch(SQLException sqlex) {
-            sqlex.printStackTrace();
-            JOptionPane.showMessageDialog(null, "Ein Fehler trat beim Einlesen der Predigten auf.", "Fehler", JOptionPane.ERROR_MESSAGE);
-        } finally {
-        	DB.closeResultSet(rs);
+        data = DB.getInstance().getPredigten();
+        Vector objects = new Vector();
+        objects.addElement(new Date((new java.util.Date()).getTime()));
+        for (int i = 1; i < DB.getInstance().getPredigtTableColumnCount()-1; i++) {
+            objects.addElement("");
         }
+        objects.addElement("neu");
+        data.addElement(objects);
         
         model = new DefaultTableModel(data, headers) {
             public boolean isCellEditable(int row, int col) {
                 if (col==getColumnCount()-1) {
                     return false;
+                } else if (NullSafeUtils.safeEquals(DB.getProperty(DB.PROPERTY_NAMES.ITEM_SOURCE), "files")) {
+                    return col==4;
                 } else {
-                    return true;
+                	return true;
                 }
             }
 
@@ -198,32 +186,14 @@ public class PredigtGUI extends JFrame implements TableModelListener {
             breite[i] = table.getColumnModel().getColumn(i).getWidth();
         }
         // Daten holen
-        data = new Vector();
-        ResultSet rs = DB.getInstance().getPredigten();
-        try {
-            ResultSetMetaData rsmd = rs.getMetaData();
-            int cols = rsmd.getColumnCount();
-            while (rs.next()) {
-                Vector objects = new Vector();
-                for (int i = 0; i < cols; i++) {
-                    Object now = rs.getObject(i + 1);
-                    objects.addElement(now);
-                }
-                data.addElement(objects);
-            }
-            Vector objects = new Vector();
-            objects.addElement(new Date((new java.util.Date()).getTime()));
-            for (int i = 1; i < cols-1; i++) {
-                objects.addElement("");
-            }
-            objects.addElement("neu");
-            data.addElement(objects);
-        } catch(SQLException sqlex) {
-            sqlex.printStackTrace();
-            JOptionPane.showMessageDialog(null, "Ein Fehler trat beim Einlesen der Predigten auf.", "Fehler", JOptionPane.ERROR_MESSAGE);
-        } finally {
-        	DB.closeResultSet(rs);
+        data = DB.getInstance().getPredigten();
+        Vector objects = new Vector();
+        objects.addElement(new Date((new java.util.Date()).getTime()));
+        for (int i = 1; i < DB.getInstance().getPredigtTableColumnCount()-1; i++) {
+            objects.addElement("");
         }
+        objects.addElement("neu");
+        data.addElement(objects);
         
         model = new DefaultTableModel(data, headers) {
             public boolean isCellEditable(int row, int col) {

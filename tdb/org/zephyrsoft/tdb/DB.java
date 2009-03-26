@@ -1,11 +1,16 @@
 package org.zephyrsoft.tdb;
 
+import java.io.*;
 import java.sql.*;
 import java.text.*;
 import java.util.*;
 import java.util.Date;
 
 import javax.swing.*;
+
+import org.zephyrsoft.util.*;
+
+import sun.reflect.ReflectionFactory.*;
 
 /**
  * Singleton-Design-Pattern. Diese Klasse
@@ -18,12 +23,34 @@ public class DB {
 
 	// falls nötig, die Datenbank um hinzugekommene Spalten erweitern:
     // - "ALTER TABLE `abo` ADD `medium` VARCHAR( 25 ) NOT NULL DEFAULT 'Kassette';"
+	// falls nötig, DB-Spalten ändern:
+	// - ALTER TABLE `predigt` CHANGE `sprecher` `sprecher` TEXT CHARACTER SET latin1 COLLATE latin1_german2_ci NOT NULL, CHANGE `name` `name` TEXT CHARACTER SET latin1 COLLATE latin1_german2_ci NULL DEFAULT NULL 
     
 	private static final DB _instance = new DB();
-    private ResourceBundle RESOURCE_BUNDLE = null;
+    private static ResourceBundle _resource_bundle;
+    
     private Connection conn = null;
     
-    public ResultSet getItem(String was) {
+    public static ResourceBundle getProperties() {
+    	if (_resource_bundle==null) {
+    		try {
+                _resource_bundle = ResourceBundle.getBundle("db");
+            } catch(MissingResourceException ex) {
+            	_resource_bundle = null;
+            }
+    	}
+		return _resource_bundle;
+	}
+    
+    public static String getProperty(String name) {
+    	if (getProperties()==null) {
+    		return null;
+    	} else {
+    		return getProperties().getString(name);
+    	}
+    }
+
+	public ResultSet getItem(String was) {
         if (was.substring(0, 1).equalsIgnoreCase("p")) {
             return select("select datum,klasse,sprecher,name,thema,bemerkung,id from predigt where id=" + was.substring(1));
         } else {
@@ -64,10 +91,172 @@ public class DB {
         return insert_update_delete("delete from abo where id=" + id);
     }
     
-    public ResultSet getPredigten() {
-        return select("select datum,klasse,sprecher,name,thema,bemerkung,id from predigt order by datum,klasse DESC,name,sprecher");
+    public void updatePredigtenVonDateien() {
+    	if (NullSafeUtils.safeEquals(DB.getProperty(DB.PROPERTY_NAMES.ITEM_SOURCE), "files")) {
+    		// Predigten werden von existierenden Dateien abgeleitet
+    		ResultSet rs = null;
+    		File dir = new File(DB.getProperty(DB.PROPERTY_NAMES.ITEM_DIRECTORY));
+    		String[] children = dir.list(new FilenameFilter() {
+				public boolean accept(File dir, String name) {
+					return (name!=null && name.toLowerCase().endsWith("kbps.mp3"));
+				}
+    		});
+    	    if (children != null) {
+    	    	Arrays.sort(children);
+    	        for (int i=0; i<children.length; i++) {
+    	            String filename = children[i];
+    	            filename = filename.replaceAll("-..kbps\\.mp3$", "");
+    	            StringTokenizer tok = new StringTokenizer(filename, "-");
+    	            String date = tok.nextToken() + "-" + tok.nextToken() + "-" + tok.nextToken();
+    	            String type = tok.nextToken();
+    	            // SEM (Seminar) wenn nichts anderes passt
+    	            String shortType = "SEM";
+    	            if (type.equals("Morgengottesdienst")) {
+    	            	shortType = "GD-M";
+    	            } else if (type.equals("Abendgottesdienst")) {
+    	            	shortType = "GD-A";
+    	            } else if (type.equals("Bibelstunde")) {
+    	            	shortType = "BS";
+    	            } else if (type.equals("Maennerfruehstueck")) {
+    	            	shortType = "FR-M";
+    	            } else if (type.equals("Frauenfruehstueck")) {
+    	            	shortType = "FR-R";
+    	            }
+    	            String speaker = "";
+    	            if (tok.hasMoreTokens()) {
+    	            	speaker = tok.nextToken();
+    	            }
+    	            while (tok.hasMoreTokens()) {
+    	            	speaker += "-" + tok.nextToken();
+    	            }
+    	            // wenn noch kein passender DB-Eintrag vorhanden ist, muss er erzeugt werden
+    	            try {
+    	            	rs = select("select id from predigt where datum='" + date + "' and klasse='" + shortType + "' and sprecher='" + speaker + "' and bemerkung='" + type + "'");;
+    	            	if (!rs.next()) {
+    	            		insert_update_delete("insert into predigt (datum, klasse, sprecher, name, thema, bemerkung) values ('" + date + "', '" + shortType + "', '" + speaker + "', '', '', '" + type + "')");
+						}
+	    	        } catch(SQLException sqlex) {
+    		            sqlex.printStackTrace();
+    		            JOptionPane.showMessageDialog(null, "Ein Fehler trat beim Einlesen der Predigten auf.", "Fehler", JOptionPane.ERROR_MESSAGE);
+    		        } finally {
+    		        	DB.closeResultSet(rs);
+    		        }
+    	        }
+    	    }
+    	}
+    }
+    
+    public Vector getPredigten() {
+    	if (NullSafeUtils.safeEquals(DB.getProperty(DB.PROPERTY_NAMES.ITEM_SOURCE), "files")) {
+    		// Predigten werden von existierenden Dateien abgeleitet
+    		Vector data = new Vector();
+    		ResultSet rs = null;
+    		File dir = new File(DB.getProperty(DB.PROPERTY_NAMES.ITEM_DIRECTORY));
+    		String[] children = dir.list(new FilenameFilter() {
+				public boolean accept(File dir, String name) {
+					return (name!=null && name.toLowerCase().endsWith("kbps.mp3"));
+				}
+    		});
+    	    if (children != null) {
+    	    	Arrays.sort(children);
+    	        for (int i=0; i<children.length; i++) {
+    	            String filename = children[i];
+    	            filename = filename.replaceAll("-..kbps\\.mp3$", "");
+    	            StringTokenizer tok = new StringTokenizer(filename, "-");
+    	            String date = tok.nextToken() + "-" + tok.nextToken() + "-" + tok.nextToken();
+    	            String type = tok.nextToken();
+    	            // SEM (Seminar) wenn nichts anderes passt
+    	            String shortType = "SEM";
+    	            if (type.equals("Morgengottesdienst")) {
+    	            	shortType = "GD-M";
+    	            } else if (type.equals("Abendgottesdienst")) {
+    	            	shortType = "GD-A";
+    	            } else if (type.equals("Bibelstunde")) {
+    	            	shortType = "BS";
+    	            } else if (type.equals("Maennerfruehstueck")) {
+    	            	shortType = "FR-M";
+    	            } else if (type.equals("Frauenfruehstueck")) {
+    	            	shortType = "FR-R";
+    	            }
+    	            String speaker = "";
+    	            if (tok.hasMoreTokens()) {
+    	            	speaker = tok.nextToken();
+    	            }
+    	            while (tok.hasMoreTokens()) {
+    	            	speaker += "-" + tok.nextToken();
+    	            }
+    	            int id = -1;
+    	            // wenn noch kein passender DB-Eintrag vorhanden ist, muss er erzeugt werden
+    	            try {
+    	            	rs = select("select id,name,thema from predigt where datum='" + date + "' and klasse='" + shortType + "' and sprecher='" + speaker + "' and bemerkung='" + type + "'");;
+    	            	if (rs.next()) {
+    	            		id = rs.getInt(1);
+    	            	} else {
+    	            		insert_update_delete("insert into predigt (datum, klasse, sprecher, name, thema, bemerkung) values ('" + date + "', '" + shortType + "', '" + speaker + "', '', '', '" + type + "')");
+    	            		DB.closeResultSet(rs);
+    	            		rs = select("select id,name,thema from predigt where datum='" + date + "' and klasse='" + shortType + "' and sprecher='" + speaker + "' and bemerkung='" + type + "'");;
+    	            		rs.next();
+        	            	id = rs.getInt(1);
+						}
+	    	            Vector objects = new Vector();
+	    	            // datum
+		                objects.addElement(date);
+						// klasse
+						objects.addElement(shortType);
+						// sprecher
+						objects.addElement(speaker.replaceAll("_", " "));
+						// name
+						objects.addElement(rs.getString(2));
+						// thema
+						objects.addElement(rs.getString(3));
+						// bemerkung
+						objects.addElement(type);
+						// id
+						objects.addElement(Integer.valueOf(id));
+		                data.addElement(objects);
+	    	        } catch(SQLException sqlex) {
+    		            sqlex.printStackTrace();
+    		            JOptionPane.showMessageDialog(null, "Ein Fehler trat beim Einlesen der Predigten auf.", "Fehler", JOptionPane.ERROR_MESSAGE);
+    		            data = null;
+    		        } finally {
+    		        	DB.closeResultSet(rs);
+    		        }
+    	        }
+    	    }
+    		return data;
+    	} else {
+    		ResultSet rs = null;
+    		Vector data = new Vector();
+    		try {
+	    		rs = select("select datum,klasse,sprecher,name,thema,bemerkung,id from predigt order by datum,klasse DESC,name,sprecher");;
+	    		ResultSetMetaData rsmd;
+				rsmd = rs.getMetaData();
+				int cols = rsmd.getColumnCount();
+	            while (rs.next()) {
+	                Vector objects = new Vector();
+	                for (int i = 0; i < cols; i++) {
+	                    Object now = rs.getObject(i + 1);
+	                    objects.addElement(now);
+	                }
+	                data.addElement(objects);
+	            }
+	    	} catch(SQLException sqlex) {
+	            sqlex.printStackTrace();
+	            JOptionPane.showMessageDialog(null, "Ein Fehler trat beim Einlesen der Predigten auf.", "Fehler", JOptionPane.ERROR_MESSAGE);
+	            data = null;
+	        } finally {
+	        	DB.closeResultSet(rs);
+	        }
+	        return data;
+    	}
+    }
+    public int getPredigtTableColumnCount() {
+    	return 7;
     }
     public int insertPredigt(String datum, String klasse, String sprecher, String name, String thema, String bemerkung) {
+    	if (NullSafeUtils.safeEquals(DB.getProperty(DB.PROPERTY_NAMES.ITEM_SOURCE), "files")) {
+    		throw new IllegalStateException("Predigten können nicht neu eingefügt werden, weil sie von existierenden Dateien abgeleitet werden!");
+    	}
         if (datum==null || datum.trim().equalsIgnoreCase("heute") || datum.trim().equalsIgnoreCase("today") || datum.trim().equalsIgnoreCase("now") || datum.trim().equalsIgnoreCase("now()") || datum.trim().equalsIgnoreCase("")) {
             return insert_update_delete("insert into predigt (datum, klasse, sprecher, name, thema, bemerkung) values (now(), '" + klasse + "', '" + sprecher + "', '" + name + "', '" + thema + "', '" + bemerkung + "')");
         } else {
@@ -75,13 +264,18 @@ public class DB {
         }
     }
     public int updatePredigt(int id, String datum, String klasse, String sprecher, String name, String thema, String bemerkung) {
-        if (datum.trim().equalsIgnoreCase("heute") || datum.trim().equalsIgnoreCase("today") || datum.trim().equalsIgnoreCase("now") || datum.trim().equalsIgnoreCase("now()")) {
+    	if (NullSafeUtils.safeEquals(DB.getProperty(DB.PROPERTY_NAMES.ITEM_SOURCE), "files")) {
+    		return insert_update_delete("update predigt set thema='" + thema + "' where id=" + id);
+    	} else if (datum.trim().equalsIgnoreCase("heute") || datum.trim().equalsIgnoreCase("today") || datum.trim().equalsIgnoreCase("now") || datum.trim().equalsIgnoreCase("now()")) {
             return insert_update_delete("update predigt set datum=now(), klasse='" + klasse + "', sprecher='" + sprecher + "', name='" + name + "', thema='" + thema + "', bemerkung='" + bemerkung + "' where id=" + id);
         } else {
             return insert_update_delete("update predigt set datum='" + datum + "', klasse='" + klasse + "', sprecher='" + sprecher + "', name='" + name + "', thema='" + thema + "', bemerkung='" + bemerkung + "' where id=" + id);
         }
     }
     public int deletePredigt(int id) {
+    	if (NullSafeUtils.safeEquals(DB.getProperty(DB.PROPERTY_NAMES.ITEM_SOURCE), "files")) {
+    		throw new IllegalStateException("Predigten können nicht gelöscht werden, weil sie von existierenden Dateien abgeleitet werden!");
+    	}
         return insert_update_delete("delete from predigt where id=" + id);
     }
     
@@ -103,6 +297,7 @@ public class DB {
     }
     
     public ResultSet getAuftraege() {
+    	DB.getInstance().updatePredigtenVonDateien();
         return select("(select erstellung,besteller,medium,was,fertigstellung,bemerkung,id from auftrag) " +
                 "UNION " +
                 "(select NOW(),abo.besteller,medium,CONCAT('P',predigt.id),null,'ABO-AUFTRAG',-3 " +
@@ -160,11 +355,8 @@ public class DB {
     
     public DB() {
         // Daten holen
-        try {
-            RESOURCE_BUNDLE = ResourceBundle.getBundle("db");
-        } catch(MissingResourceException ex) {
-            ex.printStackTrace();
-            JOptionPane.showMessageDialog(null, "Die Zugangsdaten für die Datenbank können nicht gefunden werden!\nBitte stellen Sie sicher, dass sich die Datei db.properties lesbar ist.","Fehler", JOptionPane.ERROR_MESSAGE);
+        if (getProperties()==null) {
+        	JOptionPane.showMessageDialog(null, "Die Zugangsdaten für die Datenbank können nicht gefunden werden!\nBitte stellen Sie sicher, dass sich die Datei db.properties lesbar ist.","Fehler", JOptionPane.ERROR_MESSAGE);
             return;
         }
         // Treiber laden
@@ -176,17 +368,17 @@ public class DB {
             return;
         }
         // Daten zur Verfügung stellen
-        String server = RESOURCE_BUNDLE.getString("server");
+        String server = getProperties().getString("server");
         int port = 3306;
-        String db = RESOURCE_BUNDLE.getString("db");
-        String user = RESOURCE_BUNDLE.getString("user");
-        String password = RESOURCE_BUNDLE.getString("password");
+        String db = getProperties().getString("db");
+        String user = getProperties().getString("user");
+        String password = getProperties().getString("password");
         // Verbindung herstellen
         try {
             conn = DriverManager.getConnection("jdbc:mysql://" + server + "/" + db, user, password);
         } catch (SQLException sqlex) {
             sqlex.printStackTrace();
-            JOptionPane.showMessageDialog(null, "Die Verbindung zur Datenbank auf " + RESOURCE_BUNDLE.getString("server") + " konnte nicht\nhergestellt werden. Bitte überprüfen Sie die Zugangsdaten!","Fehler", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, "Die Verbindung zur Datenbank auf " + getProperties().getString("server") + " konnte nicht\nhergestellt werden. Bitte überprüfen Sie die Zugangsdaten!","Fehler", JOptionPane.ERROR_MESSAGE);
         }
         
     }
@@ -200,7 +392,7 @@ public class DB {
             conn.close();
         } catch (SQLException sqlex) {
             sqlex.printStackTrace();
-            JOptionPane.showMessageDialog(null, "Die Verbindung zur Datenbank auf " + RESOURCE_BUNDLE.getString("server") + " konnte nicht geschlossen werden.","Fehler", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, "Die Verbindung zur Datenbank auf " + getProperties().getString("server") + " konnte nicht geschlossen werden.","Fehler", JOptionPane.ERROR_MESSAGE);
         }
     }
     
@@ -211,5 +403,14 @@ public class DB {
 		} catch (SQLException e) {
 			System.err.println(SimpleDateFormat.getDateTimeInstance(SimpleDateFormat.SHORT, SimpleDateFormat.MEDIUM).format(new Date()) + ": Could not close result set properly!");
 		}
+    }
+    
+    public class PROPERTY_NAMES {
+    	public static final String DATABASE_SERVER = "server";
+    	public static final String DATABASE_NAME = "db";
+    	public static final String DATABASE_USER = "user";
+    	public static final String DATABASE_PASSWORD = "password";
+    	public static final String ITEM_SOURCE = "source";
+    	public static final String ITEM_DIRECTORY = "directory";
     }
 }

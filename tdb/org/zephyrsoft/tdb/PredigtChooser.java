@@ -75,25 +75,7 @@ public class PredigtChooser extends JDialog implements ListSelectionListener {
         headers.addElement("Bemerkung");
         headers.addElement("ID");
         
-        data = new Vector();
-        ResultSet rs = DB.getInstance().getPredigten();
-        try {
-            ResultSetMetaData rsmd = rs.getMetaData();
-            int cols = rsmd.getColumnCount();
-            while (rs.next()) {
-                Vector objects = new Vector();
-                for (int i = 0; i < cols; i++) {
-                    Object now = rs.getObject(i + 1);
-                    objects.addElement(now);
-                }
-                data.addElement(objects);
-            }
-        } catch(SQLException sqlex) {
-            sqlex.printStackTrace();
-            JOptionPane.showMessageDialog(null, "Ein Fehler trat beim Einlesen der Predigten auf.", "Fehler", JOptionPane.ERROR_MESSAGE);
-        } finally {
-        	DB.closeResultSet(rs);
-        }
+        data = DB.getInstance().getPredigten();
         
         model = new DefaultTableModel(data, headers) {
             public boolean isCellEditable(int row, int col) {
@@ -147,32 +129,32 @@ public class PredigtChooser extends JDialog implements ListSelectionListener {
     
     private void reloadData(int what) {
         data = new Vector();
-        ResultSet rs;
+        ResultSet rs = null;
         if (what==0) {
             // lade Predigten
-            rs = DB.getInstance().getPredigten();
+            data = DB.getInstance().getPredigten();
         } else {
             // lade Sammlungen
-            rs = DB.getInstance().getSammlungen();
-        }
-        try {
-            ResultSetMetaData rsmd = rs.getMetaData();
-            int cols = rsmd.getColumnCount();
-            while (rs.next()) {
-                Vector objects = new Vector();
-                for (int i = 0; i < cols; i++) {
-                    Object now = rs.getObject(i + 1);
-                    objects.addElement(now);
-                }
-                data.addElement(objects);
+        	try {
+	            rs = DB.getInstance().getSammlungen();
+	            ResultSetMetaData rsmd = rs.getMetaData();
+	            int cols = rsmd.getColumnCount();
+	            while (rs.next()) {
+	                Vector objects = new Vector();
+	                for (int i = 0; i < cols; i++) {
+	                    Object now = rs.getObject(i + 1);
+	                    objects.addElement(now);
+	                }
+	                data.addElement(objects);
+	            }
+            } catch(SQLException sqlex) {
+                sqlex.printStackTrace();
+                JOptionPane.showMessageDialog(null, "Ein Fehler trat beim Einlesen der Predigten auf.", "Fehler", JOptionPane.ERROR_MESSAGE);
+            } finally {
+            	DB.closeResultSet(rs);
             }
-        } catch(SQLException sqlex) {
-            sqlex.printStackTrace();
-            JOptionPane.showMessageDialog(null, "Ein Fehler trat beim Einlesen der Predigten auf.", "Fehler", JOptionPane.ERROR_MESSAGE);
-        } finally {
-        	DB.closeResultSet(rs);
         }
-        
+            
         model = new DefaultTableModel(data, headers) {
             public boolean isCellEditable(int row, int col) {
                 return false;
