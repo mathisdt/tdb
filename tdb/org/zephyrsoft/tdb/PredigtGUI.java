@@ -7,6 +7,7 @@ import java.sql.Date;
 import java.util.*;
 
 import javax.swing.*;
+import javax.swing.Timer;
 import javax.swing.event.*;
 import javax.swing.table.*;
 
@@ -43,13 +44,16 @@ public class PredigtGUI extends JFrame implements TableModelListener {
         headers.addElement("ID");
         
         data = DB.getInstance().getPredigten();
-        Vector objects = new Vector();
-        objects.addElement(new Date((new java.util.Date()).getTime()));
-        for (int i = 1; i < DB.getInstance().getPredigtTableColumnCount()-1; i++) {
-            objects.addElement("");
+        if (!NullSafeUtils.safeEquals(DB.getProperty(DB.PROPERTY_NAMES.ITEM_SOURCE), "files")) {
+        	// nur wenn die Quelle der Predigten nicht tatsächliche Dateien sind:
+	        Vector objects = new Vector();
+	        objects.addElement(new Date((new java.util.Date()).getTime()));
+	        for (int i = 1; i < DB.getInstance().getPredigtTableColumnCount()-1; i++) {
+	            objects.addElement("");
+	        }
+	        objects.addElement("neu");
+	        data.addElement(objects);
         }
-        objects.addElement("neu");
-        data.addElement(objects);
         
         model = new DefaultTableModel(data, headers) {
             public boolean isCellEditable(int row, int col) {
@@ -92,76 +96,89 @@ public class PredigtGUI extends JFrame implements TableModelListener {
         final JTextField textfield = new JTextField();
         textfield.setBackground(Color.GREEN);
         
-        popup = new JPopupMenu();
-        JMenuItem titel = new JMenuItem("mögliche Aktionen");
-        titel.setEnabled(false);
-        titel.updateUI();
-        popup.add(titel);
-        popup.addSeparator();
-        
-        JMenuItem copy = new JMenuItem("markierte Predigt duplizieren");
-        copy.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent ae) {
-                int copyreally = JOptionPane.showConfirmDialog(PredigtGUI.this, "Wirklich diese Predigt" + ( !String.valueOf(model.getValueAt(table.getSelectedRow(), 0)).equals("null") ? " vom " + String.valueOf(model.getValueAt(table.getSelectedRow(), 0)) : "") + " duplizieren?", "Sicherheitsabfrage", JOptionPane.OK_CANCEL_OPTION);
-                if (copyreally == JOptionPane.OK_OPTION) {
-                    int selrow = getSelectedRow();
-                    DB.getInstance().insertPredigt(String.valueOf(model.getValueAt(selrow, 0)), String.valueOf(model.getValueAt(selrow, 1)), String.valueOf(model.getValueAt(selrow, 2)), String.valueOf(model.getValueAt(selrow, 3)), String.valueOf(model.getValueAt(selrow, 4)), String.valueOf(model.getValueAt(selrow, 5)));
-                    reloadData();
-                    setSelectedID(-2);
-                }
-            }
-        });
-        popup.add(copy);
-        
-        JMenuItem remove = new JMenuItem("markierte Predigt löschen");
-        remove.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent ae) {
-                int deletereally = JOptionPane.showConfirmDialog(PredigtGUI.this, "Wirklich diese Predigt" + ( !String.valueOf(model.getValueAt(table.getSelectedRow(), 0)).equals("null") ? " vom " + String.valueOf(model.getValueAt(table.getSelectedRow(), 0)) : "") + " unwiderruflich löschen?", "Sicherheitsabfrage", JOptionPane.OK_CANCEL_OPTION);
-                if (deletereally == JOptionPane.OK_OPTION) {
-                    int selrow = getSelectedRow();
-                    DB.getInstance().deletePredigt(Integer.valueOf(String.valueOf(model.getValueAt(table.getSelectedRow(), model.getColumnCount()-1))).intValue());
-                    reloadData();
-                    setSelectedRow(selrow);
-                }
-            }
-        });
-        popup.add(remove);
-        
-        table.addMouseListener(new MouseAdapter() {
-            public void mouseClicked(MouseEvent me) {
-            	if (me.getButton()!=MouseEvent.BUTTON1 && !table.isEditing()) {
-                    int x = me.getX();
-                    int y = me.getY();
-                    // Zeile an (x/y) finden und markieren
-                    int proZeile = table.getRowHeight();
-                    int zeile = (int)Math.floor(y/proZeile);
-                    table.getSelectionModel().setSelectionInterval(zeile, zeile);
-                    Point left_top = scrollpane.getViewport().getViewPosition();
-                    Dimension extents = scrollpane.getViewport().getExtentSize();
-                    if (x + popup.getWidth() - left_top.getX() > extents.getWidth()) {
-                        x -= popup.getWidth();
-                    }
-                    if (y + popup.getHeight() - left_top.getY() > extents.getHeight()) {
-                        y -= popup.getHeight();
-                    }
-                    if (zeile != table.getRowCount()-1) {
-                			popup.show(me.getComponent(), x, y);
-                    }
-                }
-            }
-            public void mousePressed(MouseEvent me) {
-                mouseClicked(me);
-            }
-            public void mouseReleased(MouseEvent me) {
-                mouseClicked(me);
-            }
-        });
-        
+        if (!NullSafeUtils.safeEquals(DB.getProperty(DB.PROPERTY_NAMES.ITEM_SOURCE), "files")) {
+        	// nur wenn die Quelle der Predigten nicht tatsächliche Dateien sind:
+	        popup = new JPopupMenu();
+	        JMenuItem titel = new JMenuItem("mögliche Aktionen");
+	        titel.setEnabled(false);
+	        titel.updateUI();
+	        popup.add(titel);
+	        popup.addSeparator();
+	        
+	        JMenuItem copy = new JMenuItem("markierte Predigt duplizieren");
+	        copy.addActionListener(new ActionListener() {
+	            public void actionPerformed(ActionEvent ae) {
+	                int copyreally = JOptionPane.showConfirmDialog(PredigtGUI.this, "Wirklich diese Predigt" + ( !String.valueOf(model.getValueAt(table.getSelectedRow(), 0)).equals("null") ? " vom " + String.valueOf(model.getValueAt(table.getSelectedRow(), 0)) : "") + " duplizieren?", "Sicherheitsabfrage", JOptionPane.OK_CANCEL_OPTION);
+	                if (copyreally == JOptionPane.OK_OPTION) {
+	                    int selrow = getSelectedRow();
+	                    DB.getInstance().insertPredigt(String.valueOf(model.getValueAt(selrow, 0)), String.valueOf(model.getValueAt(selrow, 1)), String.valueOf(model.getValueAt(selrow, 2)), String.valueOf(model.getValueAt(selrow, 3)), String.valueOf(model.getValueAt(selrow, 4)), String.valueOf(model.getValueAt(selrow, 5)));
+	                    reloadData();
+	                    setSelectedID(-2);
+	                }
+	            }
+	        });
+	        popup.add(copy);
+	        
+	        JMenuItem remove = new JMenuItem("markierte Predigt löschen");
+	        remove.addActionListener(new ActionListener() {
+	            public void actionPerformed(ActionEvent ae) {
+	                int deletereally = JOptionPane.showConfirmDialog(PredigtGUI.this, "Wirklich diese Predigt" + ( !String.valueOf(model.getValueAt(table.getSelectedRow(), 0)).equals("null") ? " vom " + String.valueOf(model.getValueAt(table.getSelectedRow(), 0)) : "") + " unwiderruflich löschen?", "Sicherheitsabfrage", JOptionPane.OK_CANCEL_OPTION);
+	                if (deletereally == JOptionPane.OK_OPTION) {
+	                    int selrow = getSelectedRow();
+	                    DB.getInstance().deletePredigt(Integer.valueOf(String.valueOf(model.getValueAt(table.getSelectedRow(), model.getColumnCount()-1))).intValue());
+	                    reloadData();
+	                    setSelectedRow(selrow);
+	                }
+	            }
+	        });
+	        popup.add(remove);
+	        
+	        table.addMouseListener(new MouseAdapter() {
+	            public void mouseClicked(MouseEvent me) {
+	            	if (me.getButton()!=MouseEvent.BUTTON1 && !table.isEditing()) {
+	                    int x = me.getX();
+	                    int y = me.getY();
+	                    // Zeile an (x/y) finden und markieren
+	                    int proZeile = table.getRowHeight();
+	                    int zeile = (int)Math.floor(y/proZeile);
+	                    table.getSelectionModel().setSelectionInterval(zeile, zeile);
+	                    Point left_top = scrollpane.getViewport().getViewPosition();
+	                    Dimension extents = scrollpane.getViewport().getExtentSize();
+	                    if (x + popup.getWidth() - left_top.getX() > extents.getWidth()) {
+	                        x -= popup.getWidth();
+	                    }
+	                    if (y + popup.getHeight() - left_top.getY() > extents.getHeight()) {
+	                        y -= popup.getHeight();
+	                    }
+	                    if (zeile != table.getRowCount()-1) {
+	                			popup.show(me.getComponent(), x, y);
+	                    }
+	                }
+	            }
+	            public void mousePressed(MouseEvent me) {
+	                mouseClicked(me);
+	            }
+	            public void mouseReleased(MouseEvent me) {
+	                mouseClicked(me);
+	            }
+	        });
+        }
+	    
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         table.setRowSelectionAllowed(true);
         table.getTableHeader().setReorderingAllowed(false);
         
         content.add(scrollpane, BorderLayout.CENTER);
+        
+        if (NullSafeUtils.safeEquals(DB.getProperty(DB.PROPERTY_NAMES.ITEM_SOURCE), "files")) {
+        	// nur wenn die Quelle der Predigten die tatsächlichen Dateien sind:
+	        Timer periodicReloader = new Timer(30000, new ActionListener() {
+	            public void actionPerformed(ActionEvent ae) {
+	                periodicReload();
+	            }
+	        });
+	        periodicReloader.start();
+        }
         
         setContentPane(content);
         
@@ -179,6 +196,14 @@ public class PredigtGUI extends JFrame implements TableModelListener {
         }
     }
     
+    protected synchronized void periodicReload() {
+        if (!table.isEditing()) {
+            int selrow = getSelectedRow();
+            reloadData();
+            setSelectedRow(selrow);
+        }
+    }
+    
     private void reloadData() {
         // Layout speichern
         breite = new int[table.getColumnModel().getColumnCount()];
@@ -187,20 +212,24 @@ public class PredigtGUI extends JFrame implements TableModelListener {
         }
         // Daten holen
         data = DB.getInstance().getPredigten();
-        Vector objects = new Vector();
-        objects.addElement(new Date((new java.util.Date()).getTime()));
-        for (int i = 1; i < DB.getInstance().getPredigtTableColumnCount()-1; i++) {
-            objects.addElement("");
+        if (!NullSafeUtils.safeEquals(DB.getProperty(DB.PROPERTY_NAMES.ITEM_SOURCE), "files")) {
+        	// nur wenn die Quelle der Predigten nicht tatsächliche Dateien sind:
+	        Vector objects = new Vector();
+	        objects.addElement(new Date((new java.util.Date()).getTime()));
+	        for (int i = 1; i < DB.getInstance().getPredigtTableColumnCount()-1; i++) {
+	            objects.addElement("");
+	        }
+	        objects.addElement("neu");
+	        data.addElement(objects);
         }
-        objects.addElement("neu");
-        data.addElement(objects);
-        
         model = new DefaultTableModel(data, headers) {
             public boolean isCellEditable(int row, int col) {
-                if (col==getColumnCount()-1) {
+            	if (col==getColumnCount()-1) {
                     return false;
+                } else if (NullSafeUtils.safeEquals(DB.getProperty(DB.PROPERTY_NAMES.ITEM_SOURCE), "files")) {
+                    return col==4;
                 } else {
-                    return true;
+                	return true;
                 }
             }
             
