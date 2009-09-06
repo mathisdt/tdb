@@ -24,12 +24,12 @@ public class AbarbeitungGUI extends JFrame implements TableModelListener {
     protected JScrollPane scrollpane = null;
     
     public AbarbeitungGUI(boolean maximize) {
-        super("Aufträge abarbeiten");
+        super("AuftrÃ¤ge abarbeiten");
         
         JPanel content = new JPanel(new BorderLayout());
         content.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
         
-        // Hauptteil: Tabelle erstellen und mit Daten füllen
+        // Hauptteil: Tabelle erstellen und mit Daten fÃ¼llen
         headers = new Vector();
         headers.addElement("Erstellung");
         headers.addElement("Besteller");
@@ -63,7 +63,7 @@ public class AbarbeitungGUI extends JFrame implements TableModelListener {
             }
         } catch(SQLException sqlex) {
             sqlex.printStackTrace();
-            JOptionPane.showMessageDialog(null, "Ein Fehler trat beim Einlesen der Aufträge auf.", "Fehler", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, "Ein Fehler trat beim Einlesen der AuftrÃ¤ge auf.", "Fehler", JOptionPane.ERROR_MESSAGE);
         } finally {
         	DB.closeResultSet(rs);
         }
@@ -126,7 +126,7 @@ public class AbarbeitungGUI extends JFrame implements TableModelListener {
         table.getColumn("Fertigstellung").setCellRenderer(renderer);
         
         popup = new JPopupMenu();
-        JMenuItem titel = new JMenuItem("mögliche Aktionen");
+        JMenuItem titel = new JMenuItem("mÃ¶gliche Aktionen");
         titel.setEnabled(false);
         titel.updateUI();
         popup.add(titel);
@@ -276,7 +276,7 @@ public class AbarbeitungGUI extends JFrame implements TableModelListener {
             }
         } catch(SQLException sqlex) {
             sqlex.printStackTrace();
-            JOptionPane.showMessageDialog(null, "Ein Fehler trat beim Einlesen der Aufträge auf.", "Fehler", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, "Ein Fehler trat beim Einlesen der AuftrÃ¤ge auf.", "Fehler", JOptionPane.ERROR_MESSAGE);
         } finally {
         	DB.closeResultSet(rs);
         }
@@ -362,7 +362,7 @@ public class AbarbeitungGUI extends JFrame implements TableModelListener {
         String bemerkung = String.valueOf(model.getValueAt(row, 5));
         
         if (id.equalsIgnoreCase("neu")) {
-            // Einfügen
+            // EinfÃ¼gen
             DB.getInstance().insertAuftrag(besteller, bemerkung, medium, was);
             reloadData();
             setSelectedID(-2);

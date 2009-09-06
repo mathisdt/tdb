@@ -8,12 +8,12 @@ import javax.swing.*;
 import org.zephyrsoft.util.*;
 
 /**
- * Mˆglichkeiten:
+ * M√∂glichkeiten:
  *   - Abos bearbeiten
  *   - Predigten bearbeiten
  *   - Sammlungen bearbeiten
- *   - Auftr‰ge erstellen/bearbeiten (B¸chertisch)
- *   - Auftr‰ge abarbeiten (Glaskasten)
+ *   - Auftr√§ge erstellen/bearbeiten (B√ºchertisch)
+ *   - Auftr√§ge abarbeiten (Glaskasten)
  * 
  * @author Mathis Dirksen-Thedens
  *
@@ -28,7 +28,7 @@ public class SelectGUI extends JFrame {
         content.setBorder(BorderFactory.createEmptyBorder(15, 35, 15, 35));
         setContentPane(content);
         getContentPane().setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
-        JButton button4 = new JButton("Auftr‰ge erstellen");
+        JButton button4 = new JButton("Auftr√§ge erstellen");
         button4.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent ae) {
                 auftrag();
@@ -37,7 +37,7 @@ public class SelectGUI extends JFrame {
         JPanel drum = new JPanel(new FlowLayout(FlowLayout.CENTER));
         drum.add(button4);
         getContentPane().add(drum);
-        JButton button5 = new JButton("Auftr‰ge abarbeiten");
+        JButton button5 = new JButton("Auftr√§ge abarbeiten");
         button5.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent ae) {
                 abarbeitung();
@@ -105,12 +105,12 @@ public class SelectGUI extends JFrame {
     }
     
     public void auftrag() {
-        // starte Maske zum Erstellen und Bearbeiten von Auftr‰gen
+        // starte Maske zum Erstellen und Bearbeiten von Auftr√§gen
         new AuftragGUI(getMaximize());
     }
     
     public void abarbeitung() {
-        // starte Maske zum Abarbeiten von Auftr‰gen
+        // starte Maske zum Abarbeiten von Auftr√§gen
         new AbarbeitungGUI(getMaximize());
     }
     

@@ -26,12 +26,12 @@ public class AuftragGUI extends JFrame implements TableModelListener {
     protected JScrollPane scrollpane = null;
     
     public AuftragGUI(boolean maximize) {
-        super("Aufträge");
+        super("AuftrÃ¤ge");
         
         JPanel content = new JPanel(new BorderLayout());
         content.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
         
-        // Hauptteil: Tabelle erstellen und mit Daten füllen
+        // Hauptteil: Tabelle erstellen und mit Daten fÃ¼llen
         headers = new Vector();
         headers.addElement("Erstellung");
         headers.addElement("Besteller");
@@ -76,7 +76,7 @@ public class AuftragGUI extends JFrame implements TableModelListener {
             data.addElement(objects);
         } catch(SQLException sqlex) {
             sqlex.printStackTrace();
-            JOptionPane.showMessageDialog(null, "Ein Fehler trat beim Einlesen der Aufträge auf.", "Fehler", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, "Ein Fehler trat beim Einlesen der AuftrÃ¤ge auf.", "Fehler", JOptionPane.ERROR_MESSAGE);
         } finally {
         	DB.closeResultSet(rs);
         }
@@ -157,7 +157,7 @@ public class AuftragGUI extends JFrame implements TableModelListener {
         table.getColumn("Predigt/Sammlung").setCellEditor(new PredigtCellEditor(this));
         
         popup = new JPopupMenu();
-        JMenuItem titel = new JMenuItem("mögliche Aktionen");
+        JMenuItem titel = new JMenuItem("mÃ¶gliche Aktionen");
         titel.setEnabled(false);
         titel.updateUI();
         popup.add(titel);
@@ -177,10 +177,10 @@ public class AuftragGUI extends JFrame implements TableModelListener {
         });
         popup.add(copy);
         
-        JMenuItem remove = new JMenuItem("markierten Auftrag löschen");
+        JMenuItem remove = new JMenuItem("markierten Auftrag lÃ¶schen");
         remove.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent ae) {
-                int deletereally = JOptionPane.showConfirmDialog(AuftragGUI.this, "Wirklich diesen Auftrag unwiderruflich löschen?\nEs könnte sein, dass er schon bearbeitet wird!\n\nAnmerkung:\n    Unfertige Abo-Aufträge können nicht gelöscht werden,\n    und fertige Abo-Aufträge erscheinen wieder als unfertig,\n    wenn man sie löscht.", "Sicherheitsabfrage", JOptionPane.OK_CANCEL_OPTION);
+                int deletereally = JOptionPane.showConfirmDialog(AuftragGUI.this, "Wirklich diesen Auftrag unwiderruflich lÃ¶schen?\nEs kÃ¶nnte sein, dass er schon bearbeitet wird!\n\nAnmerkung:\n    Unfertige Abo-AuftrÃ¤ge kÃ¶nnen nicht gelÃ¶scht werden,\n    und fertige Abo-AuftrÃ¤ge erscheinen wieder als unfertig,\n    wenn man sie lÃ¶scht.", "Sicherheitsabfrage", JOptionPane.OK_CANCEL_OPTION);
                 if (deletereally == JOptionPane.OK_OPTION) {
                     int selrow = getSelectedRow();
                     DB.getInstance().deleteAuftrag(Integer.valueOf(String.valueOf(model.getValueAt(table.getSelectedRow(), model.getColumnCount()-1))).intValue());
@@ -332,7 +332,7 @@ public class AuftragGUI extends JFrame implements TableModelListener {
             data.addElement(objects);
         } catch(SQLException sqlex) {
             sqlex.printStackTrace();
-            JOptionPane.showMessageDialog(null, "Ein Fehler trat beim Einlesen der Aufträge auf.", "Fehler", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, "Ein Fehler trat beim Einlesen der AuftrÃ¤ge auf.", "Fehler", JOptionPane.ERROR_MESSAGE);
         } finally {
         	DB.closeResultSet(rs);
         }
@@ -436,7 +436,7 @@ public class AuftragGUI extends JFrame implements TableModelListener {
         String bemerkung = String.valueOf(model.getValueAt(row, 5));
         
         if (id.equalsIgnoreCase("neu")) {
-            // Einfügen
+            // EinfÃ¼gen
             DB.getInstance().insertAuftrag(besteller, bemerkung, medium, was);
             reloadData();
             setSelectedID(-2);

@@ -29,7 +29,7 @@ public class AboGUI extends JFrame implements TableModelListener {
         JPanel content = new JPanel(new BorderLayout());
         content.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
         
-        // Hauptteil: Tabelle erstellen und mit Daten füllen
+        // Hauptteil: Tabelle erstellen und mit Daten fÃ¼llen
         headers = new Vector();
         headers.addElement("Erstellung");
         headers.addElement("Besteller");
@@ -111,7 +111,7 @@ public class AboGUI extends JFrame implements TableModelListener {
         textfield.setBackground(Color.GREEN);
         
         popup = new JPopupMenu();
-        JMenuItem titel = new JMenuItem("mögliche Aktionen");
+        JMenuItem titel = new JMenuItem("mÃ¶gliche Aktionen");
         titel.setEnabled(false);
         titel.updateUI();
         popup.add(titel);
@@ -131,10 +131,10 @@ public class AboGUI extends JFrame implements TableModelListener {
         });
         popup.add(copy);
         
-        JMenuItem remove = new JMenuItem("markiertes Abo löschen");
+        JMenuItem remove = new JMenuItem("markiertes Abo lÃ¶schen");
         remove.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent ae) {
-                int deletereally = JOptionPane.showConfirmDialog(AboGUI.this, "Wirklich dies Abo unwiderruflich löschen?\nZum Aussetzen kann man \"Abo aktiv\" deselektieren!", "Sicherheitsabfrage", JOptionPane.OK_CANCEL_OPTION);
+                int deletereally = JOptionPane.showConfirmDialog(AboGUI.this, "Wirklich dies Abo unwiderruflich lÃ¶schen?\nZum Aussetzen kann man \"Abo aktiv\" deselektieren!", "Sicherheitsabfrage", JOptionPane.OK_CANCEL_OPTION);
                 if (deletereally == JOptionPane.OK_OPTION) {
                     int selrow = getSelectedRow();
                     DB.getInstance().deleteAbo(Integer.valueOf(String.valueOf(model.getValueAt(table.getSelectedRow(), model.getColumnCount()-1))).intValue());
@@ -327,7 +327,7 @@ public class AboGUI extends JFrame implements TableModelListener {
         
         
         if (id.equalsIgnoreCase("neu")) {
-            // Einfügen
+            // EinfÃ¼gen
             DB.getInstance().insertAbo(besteller, klasse, bemerkung, medium);
             reloadData();
             setSelectedID(-2);

@@ -14,7 +14,7 @@ public class PredigtCellEditor extends AbstractCellEditor implements TableCellEd
     PredigtChooser chooser;
     
     public PredigtCellEditor(JFrame parent) {
-        button = new JButton("Klicken zum Wählen");
+        button = new JButton("Klicken zum WÃ¤hlen");
         button.addActionListener(this);
         button.setBorderPainted(false);
 

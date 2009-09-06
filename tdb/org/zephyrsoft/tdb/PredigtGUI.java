@@ -33,7 +33,7 @@ public class PredigtGUI extends JFrame implements TableModelListener {
         JPanel content = new JPanel(new BorderLayout());
         content.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
         
-        // Hauptteil: Tabelle erstellen und mit Daten füllen
+        // Hauptteil: Tabelle erstellen und mit Daten fÃ¼llen
         headers = new Vector();
         headers.addElement("Datum");
         headers.addElement("Klasse");
@@ -45,7 +45,7 @@ public class PredigtGUI extends JFrame implements TableModelListener {
         
         data = DB.getInstance().getPredigten();
         if (!NullSafeUtils.safeEquals(DB.getProperty(DB.PROPERTY_NAMES.ITEM_SOURCE), "files")) {
-        	// nur wenn die Quelle der Predigten nicht tatsächliche Dateien sind:
+        	// nur wenn die Quelle der Predigten nicht tatsÃ¤chliche Dateien sind:
 	        Vector objects = new Vector();
 	        objects.addElement(new Date((new java.util.Date()).getTime()));
 	        for (int i = 1; i < DB.getInstance().getPredigtTableColumnCount()-1; i++) {
@@ -97,9 +97,9 @@ public class PredigtGUI extends JFrame implements TableModelListener {
         textfield.setBackground(Color.GREEN);
         
         if (!NullSafeUtils.safeEquals(DB.getProperty(DB.PROPERTY_NAMES.ITEM_SOURCE), "files")) {
-        	// nur wenn die Quelle der Predigten nicht tatsächliche Dateien sind:
+        	// nur wenn die Quelle der Predigten nicht tatsÃ¤chliche Dateien sind:
 	        popup = new JPopupMenu();
-	        JMenuItem titel = new JMenuItem("mögliche Aktionen");
+	        JMenuItem titel = new JMenuItem("mÃ¶gliche Aktionen");
 	        titel.setEnabled(false);
 	        titel.updateUI();
 	        popup.add(titel);
@@ -119,10 +119,10 @@ public class PredigtGUI extends JFrame implements TableModelListener {
 	        });
 	        popup.add(copy);
 	        
-	        JMenuItem remove = new JMenuItem("markierte Predigt löschen");
+	        JMenuItem remove = new JMenuItem("markierte Predigt lÃ¶schen");
 	        remove.addActionListener(new ActionListener() {
 	            public void actionPerformed(ActionEvent ae) {
-	                int deletereally = JOptionPane.showConfirmDialog(PredigtGUI.this, "Wirklich diese Predigt" + ( !String.valueOf(model.getValueAt(table.getSelectedRow(), 0)).equals("null") ? " vom " + String.valueOf(model.getValueAt(table.getSelectedRow(), 0)) : "") + " unwiderruflich löschen?", "Sicherheitsabfrage", JOptionPane.OK_CANCEL_OPTION);
+	                int deletereally = JOptionPane.showConfirmDialog(PredigtGUI.this, "Wirklich diese Predigt" + ( !String.valueOf(model.getValueAt(table.getSelectedRow(), 0)).equals("null") ? " vom " + String.valueOf(model.getValueAt(table.getSelectedRow(), 0)) : "") + " unwiderruflich lÃ¶schen?", "Sicherheitsabfrage", JOptionPane.OK_CANCEL_OPTION);
 	                if (deletereally == JOptionPane.OK_OPTION) {
 	                    int selrow = getSelectedRow();
 	                    DB.getInstance().deletePredigt(Integer.valueOf(String.valueOf(model.getValueAt(table.getSelectedRow(), model.getColumnCount()-1))).intValue());
@@ -171,7 +171,7 @@ public class PredigtGUI extends JFrame implements TableModelListener {
         content.add(scrollpane, BorderLayout.CENTER);
         
         if (NullSafeUtils.safeEquals(DB.getProperty(DB.PROPERTY_NAMES.ITEM_SOURCE), "files")) {
-        	// nur wenn die Quelle der Predigten die tatsächlichen Dateien sind:
+        	// nur wenn die Quelle der Predigten die tatsÃ¤chlichen Dateien sind:
 	        Timer periodicReloader = new Timer(30000, new ActionListener() {
 	            public void actionPerformed(ActionEvent ae) {
 	                periodicReload();
@@ -213,7 +213,7 @@ public class PredigtGUI extends JFrame implements TableModelListener {
         // Daten holen
         data = DB.getInstance().getPredigten();
         if (!NullSafeUtils.safeEquals(DB.getProperty(DB.PROPERTY_NAMES.ITEM_SOURCE), "files")) {
-        	// nur wenn die Quelle der Predigten nicht tatsächliche Dateien sind:
+        	// nur wenn die Quelle der Predigten nicht tatsÃ¤chliche Dateien sind:
 	        Vector objects = new Vector();
 	        objects.addElement(new Date((new java.util.Date()).getTime()));
 	        for (int i = 1; i < DB.getInstance().getPredigtTableColumnCount()-1; i++) {
@@ -278,7 +278,7 @@ public class PredigtGUI extends JFrame implements TableModelListener {
         String bemerkung = String.valueOf(model.getValueAt(row, 5));
         
         if (id.equalsIgnoreCase("neu")) {
-            // Einfügen
+            // EinfÃ¼gen
             DB.getInstance().insertPredigt(datum, klasse, sprecher, name, thema, bemerkung);
             reloadData();
             setSelectedID(-2);

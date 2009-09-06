@@ -29,7 +29,7 @@ public class SammlungGUI extends JFrame implements TableModelListener {
         JPanel content = new JPanel(new BorderLayout());
         content.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
         
-        // Hauptteil: Tabelle erstellen und mit Daten füllen
+        // Hauptteil: Tabelle erstellen und mit Daten fÃ¼llen
         headers = new Vector();
         headers.addElement("Datum");
         headers.addElement("Klasse");
@@ -100,7 +100,7 @@ public class SammlungGUI extends JFrame implements TableModelListener {
         textfield.setBackground(Color.GREEN);
         
         popup = new JPopupMenu();
-        JMenuItem titel = new JMenuItem("mögliche Aktionen");
+        JMenuItem titel = new JMenuItem("mÃ¶gliche Aktionen");
         titel.setEnabled(false);
         titel.updateUI();
         popup.add(titel);
@@ -120,10 +120,10 @@ public class SammlungGUI extends JFrame implements TableModelListener {
         });
         popup.add(copy);
         
-        JMenuItem remove = new JMenuItem("markierte Sammlung löschen");
+        JMenuItem remove = new JMenuItem("markierte Sammlung lÃ¶schen");
         remove.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent ae) {
-                int deletereally = JOptionPane.showConfirmDialog(SammlungGUI.this, "Wirklich diese Sammlung" + ( !String.valueOf(model.getValueAt(table.getSelectedRow(), 0)).equals("null") ? " vom " + String.valueOf(model.getValueAt(table.getSelectedRow(), 0)) : "") + " unwiderruflich löschen?", "Sicherheitsabfrage", JOptionPane.OK_CANCEL_OPTION);
+                int deletereally = JOptionPane.showConfirmDialog(SammlungGUI.this, "Wirklich diese Sammlung" + ( !String.valueOf(model.getValueAt(table.getSelectedRow(), 0)).equals("null") ? " vom " + String.valueOf(model.getValueAt(table.getSelectedRow(), 0)) : "") + " unwiderruflich lÃ¶schen?", "Sicherheitsabfrage", JOptionPane.OK_CANCEL_OPTION);
                 if (deletereally == JOptionPane.OK_OPTION) {
                     int selrow = getSelectedRow();
                     DB.getInstance().deleteSammlung(Integer.valueOf(String.valueOf(model.getValueAt(table.getSelectedRow(), model.getColumnCount()-1))).intValue());
@@ -262,7 +262,7 @@ public class SammlungGUI extends JFrame implements TableModelListener {
         String bemerkung = String.valueOf(model.getValueAt(row, 5));
         
         if (id.equalsIgnoreCase("neu")) {
-            // Einfügen
+            // EinfÃ¼gen
             DB.getInstance().insertSammlung(datum, klasse, sprecher, name, thema, bemerkung);
             reloadData();
             setSelectedID(-2);

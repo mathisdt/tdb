@@ -21,10 +21,10 @@ public class Start {
                 // Sammlungen bearbeiten
                 selgui.sammlung();
             } else if (arg.equalsIgnoreCase("--auftrag")) {
-                // Auftr‰ge hinzuf¸gen/bearbeiten
+                // Auftr√§ge hinzuf√ºgen/bearbeiten
                 selgui.auftrag();
             } else if (arg.equalsIgnoreCase("--abarbeitung")) {
-                // Auftr‰ge abarbeiten
+                // Auftr√§ge abarbeiten
                 selgui.abarbeitung();
             } else if (arg.equalsIgnoreCase("--maximize")) {
                 // alle Tabellenfenster sollen maximiert sein

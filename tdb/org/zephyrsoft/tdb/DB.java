@@ -21,9 +21,9 @@ import sun.reflect.ReflectionFactory.*;
  */
 public class DB {
 
-	// falls nötig, die Datenbank um hinzugekommene Spalten erweitern:
+	// falls nÃ¶tig, die Datenbank um hinzugekommene Spalten erweitern:
     // - "ALTER TABLE `abo` ADD `medium` VARCHAR( 25 ) NOT NULL DEFAULT 'Audio-CD';"
-	// falls nötig, DB-Spalten ändern:
+	// falls nÃ¶tig, DB-Spalten Ã¤ndern:
 	// - ALTER TABLE `predigt` CHANGE `sprecher` `sprecher` TEXT CHARACTER SET latin1 COLLATE latin1_german2_ci NOT NULL, CHANGE `name` `name` TEXT CHARACTER SET latin1 COLLATE latin1_german2_ci NULL DEFAULT NULL 
     
 	private static final DB _instance = new DB();
@@ -255,7 +255,7 @@ public class DB {
     }
     public int insertPredigt(String datum, String klasse, String sprecher, String name, String thema, String bemerkung) {
     	if (NullSafeUtils.safeEquals(DB.getProperty(DB.PROPERTY_NAMES.ITEM_SOURCE), "files")) {
-    		throw new IllegalStateException("Predigten können nicht neu eingefügt werden, weil sie von existierenden Dateien abgeleitet werden!");
+    		throw new IllegalStateException("Predigten kÃ¶nnen nicht neu eingefÃ¼gt werden, weil sie von existierenden Dateien abgeleitet werden!");
     	}
         if (datum==null || datum.trim().equalsIgnoreCase("heute") || datum.trim().equalsIgnoreCase("today") || datum.trim().equalsIgnoreCase("now") || datum.trim().equalsIgnoreCase("now()") || datum.trim().equalsIgnoreCase("")) {
             return insert_update_delete("insert into predigt (datum, klasse, sprecher, name, thema, bemerkung) values (now(), '" + klasse + "', '" + sprecher + "', '" + name + "', '" + thema + "', '" + bemerkung + "')");
@@ -274,7 +274,7 @@ public class DB {
     }
     public int deletePredigt(int id) {
     	if (NullSafeUtils.safeEquals(DB.getProperty(DB.PROPERTY_NAMES.ITEM_SOURCE), "files")) {
-    		throw new IllegalStateException("Predigten können nicht gelöscht werden, weil sie von existierenden Dateien abgeleitet werden!");
+    		throw new IllegalStateException("Predigten kÃ¶nnen nicht gelÃ¶scht werden, weil sie von existierenden Dateien abgeleitet werden!");
     	}
         return insert_update_delete("delete from predigt where id=" + id);
     }
@@ -337,7 +337,7 @@ public class DB {
             return st.executeQuery(string);
         } catch (SQLException sqlex) {
             sqlex.printStackTrace();
-            JOptionPane.showMessageDialog(null, "Die folgende Anfrage konnte nicht ausgeführt werden:\n" + string,"Fehler", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, "Die folgende Anfrage konnte nicht ausgefÃ¼hrt werden:\n" + string,"Fehler", JOptionPane.ERROR_MESSAGE);
             return null;
         }
     }
@@ -348,7 +348,7 @@ public class DB {
             return st.executeUpdate(string);
         } catch (SQLException sqlex) {
             sqlex.printStackTrace();
-            JOptionPane.showMessageDialog(null, "Die folgende Anfrage konnte nicht ausgeführt werden:\n" + string,"Fehler", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, "Die folgende Anfrage konnte nicht ausgefÃ¼hrt werden:\n" + string,"Fehler", JOptionPane.ERROR_MESSAGE);
             return 0;
         }
     }
@@ -356,7 +356,7 @@ public class DB {
     public DB() {
         // Daten holen
         if (getProperties()==null) {
-        	JOptionPane.showMessageDialog(null, "Die Zugangsdaten für die Datenbank können nicht gefunden werden!\nBitte stellen Sie sicher, dass sich die Datei db.properties lesbar ist.","Fehler", JOptionPane.ERROR_MESSAGE);
+        	JOptionPane.showMessageDialog(null, "Die Zugangsdaten fÃ¼r die Datenbank kÃ¶nnen nicht gefunden werden!\nBitte stellen Sie sicher, dass sich die Datei db.properties lesbar ist.","Fehler", JOptionPane.ERROR_MESSAGE);
             return;
         }
         // Treiber laden
@@ -367,7 +367,7 @@ public class DB {
             JOptionPane.showMessageDialog(null, "Der Datenbanktreiber wurde nicht gefunden.","Fehler", JOptionPane.ERROR_MESSAGE);
             return;
         }
-        // Daten zur Verfügung stellen
+        // Daten zur VerfÃ¼gung stellen
         String server = getProperties().getString("server");
         int port = 3306;
         String db = getProperties().getString("db");
@@ -378,7 +378,7 @@ public class DB {
             conn = DriverManager.getConnection("jdbc:mysql://" + server + "/" + db, user, password);
         } catch (SQLException sqlex) {
             sqlex.printStackTrace();
-            JOptionPane.showMessageDialog(null, "Die Verbindung zur Datenbank auf " + getProperties().getString("server") + " konnte nicht\nhergestellt werden. Bitte überprüfen Sie die Zugangsdaten!","Fehler", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, "Die Verbindung zur Datenbank auf " + getProperties().getString("server") + " konnte nicht\nhergestellt werden. Bitte Ã¼berprÃ¼fen Sie die Zugangsdaten!","Fehler", JOptionPane.ERROR_MESSAGE);
         }
         
     }

@@ -26,7 +26,7 @@ public class PredigtChooser extends JDialog implements ListSelectionListener {
     public PredigtChooser(JFrame parent, PredigtCellEditor ed) {
         super(parent);
         this.editor = ed;
-        setTitle("Predigt/Sammlung auswählen...");
+        setTitle("Predigt/Sammlung auswÃ¤hlen...");
         try {
             setAlwaysOnTop(true);
         } catch(NoSuchMethodError err) {}
@@ -65,7 +65,7 @@ public class PredigtChooser extends JDialog implements ListSelectionListener {
         okcancelpanel.add(okbutton);
         content.add(okcancelpanel, BorderLayout.SOUTH);
         
-        // Hauptteil: Tabelle erstellen und mit Predigten füllen
+        // Hauptteil: Tabelle erstellen und mit Predigten fÃ¼llen
         headers = new Vector();
         headers.addElement("Datum");
         headers.addElement("Klasse");
